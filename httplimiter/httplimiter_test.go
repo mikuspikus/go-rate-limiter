@@ -84,7 +84,7 @@ func TestNewLimiterMiddleware(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				if got, want := remaining, c.tokens-uint64(i)-1; got != want {
+				if got, want := remaining, c.tokens-i-1; got != want {
 					t.Errorf("remaining: expected %d, got %d", want, got)
 				}
 			}
