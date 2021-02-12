@@ -93,14 +93,14 @@ func (lm *LimiterMiddleware) Handle(next http.Handler) http.Handler {
 			return
 		}
 
-		resetTime := time.Unix(0, int64(reset)).UTC().Format(time.RFC822)
+		resetFormatted := time.Unix(0, int64(reset)).UTC().Format(time.RFC822)
 
 		w.Header().Set(HeaderRateLimitLimit, strconv.FormatUint(limit, 10))
 		w.Header().Set(HeaderRateLimitRemaining, strconv.FormatUint(remaining, 10))
-		w.Header().Set(HeaderRateLimitReset, resetTime)
+		w.Header().Set(HeaderRateLimitReset, resetFormatted)
 
 		if !ok {
-			w.Header().Set(HeaderRetryAfter, resetTime)
+			w.Header().Set(HeaderRetryAfter, resetFormatted)
 			http.Error(w, http.StatusText(http.StatusTooManyRequests), http.StatusTooManyRequests)
 			return
 		}
