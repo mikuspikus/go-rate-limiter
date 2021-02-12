@@ -47,7 +47,7 @@ type Config struct {
 	InitAlloc int
 }
 
-func NewMemStorage(cfg *Config) (MemStorage, error) {
+func NewMemStorage(cfg *Config) (*MemStorage, error) {
 	if cfg == nil {
 		cfg = new(Config)
 	}
@@ -77,7 +77,7 @@ func NewMemStorage(cfg *Config) (MemStorage, error) {
 		initAlloc = cfg.InitAlloc
 	}
 
-	storage := MemStorage{
+	storage := &MemStorage{
 		tokens:        tokens,
 		interval:      interval,
 		sweepInterval: sweepInterval,
