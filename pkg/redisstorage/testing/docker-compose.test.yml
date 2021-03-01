@@ -1,0 +1,28 @@
+version: "3.3"
+
+networks:
+  integration-tests-redis-storage-test:
+    driver: bridge
+
+services:
+  rs-app:
+    build:
+      context: ./..
+      dockerfile: ./testing/.rs-app/Dockerfile
+    env_file:
+      - ./.rs-app/env
+    links:
+      - redis
+    depends_on:
+      - redis
+    networks:
+      - integration-tests-redis-storage-test
+
+  redis:
+    build:
+      context: ./..
+      dockerfile: ./testing/.redis/Dockerfile
+    expose:
+      - 6379
+    networks:
+      - integration-tests-redis-storage-test

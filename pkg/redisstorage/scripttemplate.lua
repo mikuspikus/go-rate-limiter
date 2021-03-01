@@ -22,7 +22,7 @@ local defaultInterval = tonumber(ARGV[3])
 
 -- utility functions
 local function hashGetAll(key)
-    local data = redis.call(CMD_HGETALL, key)
+    local data = redis.call(RCMD_HGETALL, key)
     local result = {}
 
     for i = 1, #data, 2 do
@@ -36,8 +36,8 @@ local function availableTokens(lastTick, current, maxTokens, fillRate)
     local delta = current - lastTick
     local availableTkns = delta * fillRate
 
-    if availableTkns > max then
-        availableTkns = max
+    if availableTkns > maxTokens then
+        availableTkns = maxTokens
     end
 
     return availableTkns
@@ -47,7 +47,7 @@ local function isPresent(val)
     return val ~= nil and val ~= ''
 end
 
-local tick(start, current, interval)
+local function tick(start, current, interval)
     local count = math.floor((current - start) / interval)
 
     if count > 0 then
@@ -57,7 +57,7 @@ local tick(start, current, interval)
     return 0
 end
 
-local timeToLive(interval)
+local function timeToLive(interval)
     return 3 * math.floor(interval / 1000000000)
 end
 
@@ -109,8 +109,7 @@ if lastTick > currentTick then
         FIELD_START, start,
         FIELD_TICK, lastTick,
         FIELD_INTERVAL, interval,
-        FIELD_CURRENT_TOKENS, tokens
-    )
+        FIELD_CURRENT_TOKENS, tokens)
     redis.call(RCMD_EXPIRE, key, timeToLive(interval))
 end
 

@@ -14,7 +14,7 @@ import (
 const (
 	fieldInterval      = "i"
 	fieldMaxTokens     = "m"
-	fieldCurrentTokens = "t"
+	fieldCurrentTokens = "k"
 
 	rcmdEXPIRE  = "EXPIRE"
 	rcmdHINCRBY = "HINCRBY"
@@ -87,13 +87,13 @@ func (rs *RedisStorage) Take(ctx context.Context, key string) (limit uint64, rem
 	}
 
 	now := uint64(time.Now().UTC().UnixNano())
-	conn, err := rs.pool.GetContext(ctx)
-	if err != nil {
-		err = fmt.Errorf("failed to get connection from pool: %w", err)
+	conn, err_ := rs.pool.GetContext(ctx)
+	if err_ != nil {
+		err = fmt.Errorf("failed to get connection from pool: %w", err_)
 		return
 	}
-	if err := conn.Err(); err != nil {
-		err = fmt.Errorf("connection not usable: %w", err)
+	if err_ := conn.Err(); err_ != nil {
+		err = fmt.Errorf("connection not usable: %w", err_)
 		return
 	}
 	defer conn.Close()
@@ -122,25 +122,25 @@ func (rs *RedisStorage) Get(ctx context.Context, key string) (limit, remainig ui
 		return
 	}
 
-	conn, err := rs.pool.GetContext(ctx)
-	if err != nil {
+	conn, err_ := rs.pool.GetContext(ctx)
+	if err_ != nil {
 		err = fmt.Errorf("failed to get connection from pool: %w", err)
 		return
 	}
-	if err := conn.Err(); err != nil {
-		err = fmt.Errorf("connection not usable: %w", err)
+	if err_ := conn.Err(); err_ != nil {
+		err = fmt.Errorf("connection not usable: %w", err_)
 		return
 	}
 	defer conn.Close()
 
-	response, err := redis.Int64s(conn.Do(rcmdHMGET, key, fieldMaxTokens, fieldCurrentTokens))
-	if err != nil {
-		err = fmt.Errorf("failed to get key fields: %w", err)
+	response, err_ := redis.Int64s(conn.Do(rcmdHMGET, key, fieldMaxTokens, fieldCurrentTokens))
+	if err_ != nil {
+		err = fmt.Errorf("failed to get key fields: %w", err_)
 		return
 	}
 
 	if len(response) != 2 {
-		err = fmt.Errorf("expected 2 keys in response: %#v", response)
+		err_ = fmt.Errorf("expected 2 keys in response: %#v", response)
 		return
 	}
 
@@ -153,13 +153,13 @@ func (rs *RedisStorage) Set(ctx context.Context, key string, tokens uint64, inte
 		err = rlstorage.ErrStopped
 		return
 	}
-	conn, err := rs.pool.GetContext(ctx)
-	if err != nil {
-		err = fmt.Errorf("failed to get connection from pool: %w", err)
+	conn, err_ := rs.pool.GetContext(ctx)
+	if err_ != nil {
+		err = fmt.Errorf("failed to get connection from pool: %w", err_)
 		return
 	}
-	if err := conn.Err(); err != nil {
-		err = fmt.Errorf("connection not usable: %w", err)
+	if err_ := conn.Err(); err_ != nil {
+		err = fmt.Errorf("connection not usable: %w", err_)
 		return
 	}
 	defer conn.Close()
@@ -167,17 +167,17 @@ func (rs *RedisStorage) Set(ctx context.Context, key string, tokens uint64, inte
 	tokensString := strconv.FormatUint(tokens, 10)
 	intervalString := strconv.FormatInt(interval.Nanoseconds(), 10)
 
-	if err = conn.Send(rcmdHSET, key,
+	if err_ = conn.Send(rcmdHSET, key,
 		fieldCurrentTokens, tokensString,
 		fieldMaxTokens, tokensString,
 		fieldInterval, intervalString,
-	); err != nil {
-		err = fmt.Errorf("failed to set key: %w", err)
+	); err_ != nil {
+		err = fmt.Errorf("failed to set key: %w", err_)
 		return
 	}
 
-	if err = conn.Send(rcmdEXPIRE, key, 24*time.Hour); err != nil {
-		err = fmt.Errorf("failed to set expiritaion on key: %w", err)
+	if err_ := conn.Send(rcmdEXPIRE, key, 24*time.Hour); err_ != nil {
+		err = fmt.Errorf("failed to set expiritaion on key: %w", err_)
 		return
 	}
 	return
@@ -189,13 +189,13 @@ func (rs *RedisStorage) Burst(ctx context.Context, key string, tokens uint64) (e
 		return
 	}
 
-	conn, err := rs.pool.GetContext(ctx)
-	if err != nil {
-		err = fmt.Errorf("failed to get connection from pool: %w", err)
+	conn, err_ := rs.pool.GetContext(ctx)
+	if err_ != nil {
+		err = fmt.Errorf("failed to get connection from pool: %w", err_)
 		return
 	}
-	if err := conn.Err(); err != nil {
-		err = fmt.Errorf("connection not usable: %w", err)
+	if err_ := conn.Err(); err_ != nil {
+		err = fmt.Errorf("connection not usable: %w", err_)
 		return
 	}
 	defer conn.Close()
@@ -206,8 +206,8 @@ func (rs *RedisStorage) Burst(ctx context.Context, key string, tokens uint64) (e
 		return
 	}
 
-	if err = conn.Send(rcmdEXPIRE, key, 24*time.Hour); err != nil {
-		err = fmt.Errorf("failed to set expiritaion on key: %w", err)
+	if err_ := conn.Send(rcmdEXPIRE, key, 24*time.Hour); err_ != nil {
+		err = fmt.Errorf("failed to set expiritaion on key: %w", err_)
 		return
 	}
 	return
