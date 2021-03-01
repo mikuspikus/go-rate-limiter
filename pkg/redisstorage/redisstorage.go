@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/gomodule/redigo/redis"
-	limiter "github.com/mikuspikus/go-rate-limiter"
+	rlstorage "pkg/rl-storage"
 )
 
 const (
@@ -82,7 +82,7 @@ func NewRS(cfg *Config) (*RedisStorage, error) {
 
 func (rs *RedisStorage) Take(ctx context.Context, key string) (limit uint64, remaining uint64, next uint64, ok bool, err error) {
 	if atomic.LoadUint32(&rs.stopped) == 1 {
-		err = limiter.ErrStopped
+		err = rlstorage.ErrStopped
 		return
 	}
 
@@ -118,7 +118,7 @@ func (rs *RedisStorage) Take(ctx context.Context, key string) (limit uint64, rem
 
 func (rs *RedisStorage) Get(ctx context.Context, key string) (limit, remainig uint64, err error) {
 	if atomic.LoadUint32(&rs.stopped) == 1 {
-		err = limiter.ErrStopped
+		err = rlstorage.ErrStopped
 		return
 	}
 
@@ -150,7 +150,7 @@ func (rs *RedisStorage) Get(ctx context.Context, key string) (limit, remainig ui
 
 func (rs *RedisStorage) Set(ctx context.Context, key string, tokens uint64, interval time.Duration) (err error) {
 	if atomic.LoadUint32(&rs.stopped) == 1 {
-		err = limiter.ErrStopped
+		err = rlstorage.ErrStopped
 		return
 	}
 	conn, err := rs.pool.GetContext(ctx)
@@ -185,7 +185,7 @@ func (rs *RedisStorage) Set(ctx context.Context, key string, tokens uint64, inte
 
 func (rs *RedisStorage) Burst(ctx context.Context, key string, tokens uint64) (err error) {
 	if atomic.LoadUint32(&rs.stopped) == 1 {
-		err = limiter.ErrStopped
+		err = rlstorage.ErrStopped
 		return
 	}
 

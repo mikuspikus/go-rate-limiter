@@ -3,7 +3,7 @@ package memstorage
 import (
 	"context"
 	"fmt"
-	ratelimiter "github.com/mikuspikus/go-rate-limiter"
+	rlstorage "pkg/rl-storage"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -138,7 +138,7 @@ func (storage *MemStorage) purge() {
 // Returns tokens limit, remaining tokens count, reset time, success flag and error.
 func (storage *MemStorage) Take(ctx context.Context, key string) (uint64, uint64, uint64, bool, error) {
 	if atomic.LoadUint32(&storage.stopped) == 1 {
-		return 0, 0, 0, false, ratelimiter.ErrStopped
+		return 0, 0, 0, false, rlstorage.ErrStopped
 	}
 
 	// read lock first for good scenario
@@ -171,7 +171,7 @@ func (storage *MemStorage) Take(ctx context.Context, key string) (uint64, uint64
 // Get retrieves the info by key if it exists
 func (storage *MemStorage) Get(ctx context.Context, key string) (uint64, uint64, error) {
 	if atomic.LoadUint32(&storage.stopped) == 1 {
-		return 0, 0, ratelimiter.ErrStopped
+		return 0, 0, rlstorage.ErrStopped
 	}
 
 	storage.bucketLock.RLock()

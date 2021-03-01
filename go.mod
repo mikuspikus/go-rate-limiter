@@ -1,5 +1,9 @@
 module github.com/mikuspikus/go-rate-limiter
 
-go 1.14
+require pkg/memstorage v1.0.0
+replace pkg/memstorage => ./pkg/memstorage
 
-require github.com/go-redis/redis/v8 v8.5.0
+require pkg/rl-storage v1.0.0
+replace pkg/rl-storage => ./pkg/storage
+
+go 1.14

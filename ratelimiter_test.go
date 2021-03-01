@@ -1,4 +1,4 @@
-package httplimiter
+package go_rate_limiter
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mikuspikus/go-rate-limiter/memstorage"
+	"pkg/memstorage"
 )
 
 func TestNewLimiterMiddleware(t *testing.T) {

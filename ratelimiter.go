@@ -1,10 +1,10 @@
-package httplimiter
+package go_rate_limiter
 
 import (
 	"fmt"
-	limiter "github.com/mikuspikus/go-rate-limiter"
 	"net"
 	"net/http"
+	rlstorage "pkg/rl-storage"
 	"strconv"
 	"time"
 )
@@ -59,11 +59,11 @@ func HeadersKeyFunc(headers ...string) KeyFunc {
 
 // LimiterMiddleware is a mux that implements rate limiting and can wrap other middleware.
 type LimiterMiddleware struct {
-	storage limiter.Storage
+	storage rlstorage.Storage
 	keyFunc KeyFunc
 }
 
-func NewLimiterMiddleware(s limiter.Storage, f KeyFunc) (*LimiterMiddleware, error) {
+func NewLimiterMiddleware(s rlstorage.Storage, f KeyFunc) (*LimiterMiddleware, error) {
 	if s == nil {
 		return nil, ErrNilStorage
 	}
